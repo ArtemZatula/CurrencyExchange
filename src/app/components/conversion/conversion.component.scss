@@ -8,14 +8,22 @@
 }
 
 .currency {
-  display: flex;
-  margin: 2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+
+  &:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
   input[type="text"] {
     @extend .form-control;
     border-right: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+
+    &.ng-invalid.ng-dirty  {
+      border: 1px solid var(--orange-red);
+    }
   }
   
   select {
@@ -23,6 +31,10 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     cursor: pointer;
+  }
+
+  .error {
+    color: var(--orange-red);
   }
 }
 

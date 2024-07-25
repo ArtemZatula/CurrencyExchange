@@ -1,18 +1,12 @@
 import { Component, DestroyRef, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms'; 
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; 
 import { merge, Subject } from 'rxjs';
-import { debounceTime, filter, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, filter, startWith, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConversionService } from '../../services/conversion.service';
+import { numericValidator } from '../../common/validators/numeric-validator';
 
-
-interface ExchangeRateForm {
-  firstCurrencyValue: string;
-  firstCurrencyName: string;
-  secondCurrencyValue: string; 
-  secondCurrencyName: string;
-}
 
 @Component({
   selector: 'app-conversion',
@@ -24,13 +18,14 @@ interface ExchangeRateForm {
 export class ConversionComponent {
   private conversionService = inject(ConversionService);
   private destroyRef = inject(DestroyRef);
+
   currencies = ['USD', 'EUR', 'UAH', 'NZD', 'CAD', 'SAR'];
  
-  exchangeRateForm = inject(FormBuilder).group<ExchangeRateForm>({
-    firstCurrencyValue: '1', 
-    firstCurrencyName: 'UAH',
-    secondCurrencyValue: '1', 
-    secondCurrencyName: 'USD'
+  exchangeRateForm = inject(FormBuilder).group({
+    firstCurrencyRate: ['1', [Validators.required, numericValidator()]],
+    firstCurrencyName: ['UAH', Validators.required],
+    secondCurrencyRate: ['0', [Validators.required, numericValidator()]],
+    secondCurrencyName: ['USD', Validators.required]
   });
   
   firstCurrencyRateChange$ = new Subject<Event>(); 
@@ -43,17 +38,18 @@ export class ConversionComponent {
       this.firstCurrencyNameChange$, 
       this.firstCurrencyRateChange$.pipe(
         filter((event: Event) => !isNaN(Number((event.target as any).value)))
-      )
+      ),
     ).pipe(
       debounceTime(300),
+      startWith(0),
       switchMap(() => this.conversionService.getExchangeRate(
         this.getFormFieldValue('firstCurrencyName'),
         this.getFormFieldValue('secondCurrencyName'),
-        this.getFormFieldValue('firstCurrencyValue')
+        this.getFormFieldValue('firstCurrencyRate')
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((rate: string) => 
-      this.exchangeRateForm.controls.secondCurrencyValue.setValue(rate));
+      this.exchangeRateForm.controls.secondCurrencyRate.setValue(rate));
 
     merge(
       this.secondCurrencyNameChange$,
@@ -65,11 +61,11 @@ export class ConversionComponent {
       switchMap(() => this.conversionService.getExchangeRate(
         this.getFormFieldValue('secondCurrencyName'),
         this.getFormFieldValue('firstCurrencyName'),
-        this.getFormFieldValue('secondCurrencyValue')
+        this.getFormFieldValue('secondCurrencyRate')
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((rate: string) => 
-      this.exchangeRateForm.controls.firstCurrencyValue.setValue(rate));
+      this.exchangeRateForm.controls.firstCurrencyRate.setValue(rate));
   }
 
   private getFormFieldValue(fieldName: string) {
