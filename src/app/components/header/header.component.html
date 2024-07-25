@@ -1,0 +1,10 @@
+<header>
+  <div class="currency-rate-container">
+    @for (currencyRate of exchangeRate$ | async; track currencyRate[0]) {
+      <div class="currency-rate">
+        <div class="currency">{{currencyRate[0]}}</div>
+        <div class="rate">{{currencyRate[1]}}</div>
+      </div>
+    }
+  </div> 
+</header>

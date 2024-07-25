@@ -1,0 +1,33 @@
+.d-flex {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-flow: row wrap;
+}
+
+header {
+  padding: 20px 80px;
+  box-shadow: 0px 1px 10px 4px rgba(0,0,0,0.1);
+  @extend .d-flex;
+
+  .currency-rate-container {
+    margin-left: auto;
+    @extend .d-flex;
+    gap: 1.5rem;
+
+    .currency-rate {
+      @extend .d-flex;
+      gap: 0.25rem;
+
+      .currency {
+        font-size: 1.5rem;
+        color: var(--gray-400)
+      }
+      
+      .rate {
+        font-size: 2rem;
+        color: var(--gray-700)
+      }
+    }
+  }
+}

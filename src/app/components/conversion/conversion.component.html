@@ -1,0 +1,33 @@
+<form [formGroup]="exchangeRateForm">
+  <div class="currency">
+    <input
+      type="text"
+      formControlName="firstCurrencyValue"
+      (input)="firstCurrencyRateChange$.next($event)"
+    >
+    <select
+      formControlName="firstCurrencyName"
+      (change)="firstCurrencyNameChange$.next($event)"
+    >
+      @for (curr of currencies; track curr) {
+        <option [value]="curr">{{ curr }}</option>
+      }
+    </select>
+  </div>
+  
+  <div class="currency">
+    <input
+      type="text"
+      formControlName="secondCurrencyValue"
+      (input)="secondCurrencyRateChange$.next($event)"
+    >
+    <select
+      formControlName="secondCurrencyName"
+      (change)="secondCurrencyNameChange$.next($event)"
+    >
+      @for (curr of currencies; track curr) {
+        <option [value]="curr">{{ curr }}</option>
+      }
+    </select>
+  </div>
+</form>

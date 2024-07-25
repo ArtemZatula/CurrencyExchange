@@ -1,0 +1,28 @@
+.form-control {
+  font-size: 2rem;
+  color: var(--gray-700);
+  padding: 1rem 2rem;
+  border: 1px solid var(--gray-400);
+  border-radius: 1rem;
+  outline: none;
+}
+
+.currency {
+  display: flex;
+  margin: 2rem;
+
+  input[type="text"] {
+    @extend .form-control;
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  select {
+    @extend .form-control;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+  }
+}
+
