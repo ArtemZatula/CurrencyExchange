@@ -44,9 +44,7 @@ export class ConversionComponent {
       debounceTime(300),
       startWith(0),
       switchMap(() => this.conversionService.getExchangeRate(
-        this.getFormFieldValue('firstCurrencyName'),
-        this.getFormFieldValue('secondCurrencyName'),
-        this.getFormFieldValue('firstCurrencyRate')
+        ...(this.getFormFieldValue('firstCurrencyName', 'secondCurrencyName', 'firstCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((rate: string) => 
@@ -60,17 +58,15 @@ export class ConversionComponent {
     ).pipe(
       debounceTime(300),
       switchMap(() => this.conversionService.getExchangeRate(
-        this.getFormFieldValue('secondCurrencyName'),
-        this.getFormFieldValue('firstCurrencyName'),
-        this.getFormFieldValue('secondCurrencyRate')
+        ...(this.getFormFieldValue('secondCurrencyName', 'firstCurrencyName', 'secondCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((rate: string) => 
       this.exchangeRateForm.controls.firstCurrencyRate.setValue(rate));
   }
 
-  private getFormFieldValue(fieldName: string) {
-    return this.exchangeRateForm.get(fieldName)?.getRawValue();
+  private getFormFieldValue(...fieldNames: string[]): string[] {
+    return fieldNames.map(fieldName => this.exchangeRateForm.get(fieldName)?.getRawValue());
   }
 
 }
