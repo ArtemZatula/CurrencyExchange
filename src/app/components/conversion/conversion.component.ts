@@ -6,12 +6,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConversionService } from '../../services/conversion.service';
 import { numericValidator } from '../../common/validators/numeric-validator';
+import { ControlErrorDirective } from '../../common/directives/control-error.directive';
 
 
 @Component({
   selector: 'app-conversion',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ControlErrorDirective],
   templateUrl: './conversion.component.html',
   styleUrl: './conversion.component.scss'
 })

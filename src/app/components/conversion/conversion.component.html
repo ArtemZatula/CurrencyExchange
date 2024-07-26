@@ -1,6 +1,7 @@
 <form [formGroup]="exchangeRateForm">
   <div class="currency">
     <input
+      controlError
       type="text"
       formControlName="firstCurrencyRate"
       (input)="firstCurrencyRateChange$.next($event)"
@@ -14,16 +15,11 @@
         <option [value]="curr">{{ curr }}</option>
       }
     </select>
-
-    @if (exchangeRateForm.get('firstCurrencyRate')?.hasError('required')) {
-      <div class="error">Required</div>
-    } @else if (exchangeRateForm.get('firstCurrencyRate')?.hasError('nonNumeric')) {
-      <div class="error">Wrong format</div>
-    } 
   </div>
   
   <div class="currency">
     <input
+      controlError
       type="text"
       formControlName="secondCurrencyRate"
       (input)="secondCurrencyRateChange$.next($event)"
@@ -36,11 +32,5 @@
         <option [value]="curr">{{ curr }}</option>
       }
     </select>
-  
-    @if (exchangeRateForm.get('secondCurrencyRate')?.hasError('required')) {
-      <div class="error">Required</div>
-    } @else if (exchangeRateForm.get('secondCurrencyRate')?.hasError('nonNumeric')) {
-      <div class="error">Wrong format</div>
-    }
   </div>
 </form>
