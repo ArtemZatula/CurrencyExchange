@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; 
 import { merge, Subject } from 'rxjs';
-import { debounceTime, filter, startWith, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, filter, startWith, switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConversionService } from '../../services/conversion.service';
@@ -47,8 +47,8 @@ export class ConversionComponent {
         ...(this.getFormFieldValue('firstCurrencyName', 'secondCurrencyName', 'firstCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((rate: string) => 
-      this.exchangeRateForm.controls.secondCurrencyRate.setValue(rate));
+    ).subscribe((result: number) => 
+      this.exchangeRateForm.controls.secondCurrencyRate.setValue(String(result)));
 
     merge(
       this.secondCurrencyNameChange$,
@@ -61,8 +61,8 @@ export class ConversionComponent {
         ...(this.getFormFieldValue('secondCurrencyName', 'firstCurrencyName', 'secondCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((rate: string) => 
-      this.exchangeRateForm.controls.firstCurrencyRate.setValue(rate));
+    ).subscribe((result: number) => 
+      this.exchangeRateForm.controls.firstCurrencyRate.setValue(String(result)));
   }
 
   private getFormFieldValue(...fieldNames: string[]): string[] {
