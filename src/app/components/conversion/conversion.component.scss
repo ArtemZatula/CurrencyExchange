@@ -1,15 +1,8 @@
-.form-control {
-  font-size: 2rem;
-  color: var(--gray-700);
-  padding: 1rem 2rem;
-  border: 1px solid var(--gray-400);
-  border-radius: 1rem;
-  outline: none;
-}
+@use '../../app.component' ;
 
 .currency {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr min-content;
 
   &:not(:last-child) {
     margin-bottom: 2rem;

@@ -56,3 +56,19 @@ main {
   justify-content: center;
   align-items: center;
 }
+
+.form-control {
+  font-size: 2rem;
+  color: var(--gray-700);
+  padding: 1rem 2rem;
+  border: 1px solid var(--gray-400);
+  border-radius: 1rem;
+  outline: none;
+}
+
+.d-flex {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-flow: row wrap;
+}

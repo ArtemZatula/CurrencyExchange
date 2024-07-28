@@ -1,9 +1,4 @@
-.d-flex {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-flow: row wrap;
-}
+@use '../../app.component' ;
 
 header {
   padding: 20px 80px;
