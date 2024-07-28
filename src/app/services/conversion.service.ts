@@ -11,17 +11,19 @@ export class ConversionService {
   private conversionHttpService = inject(ConversionHttpService);
   private rates = signal<ConversionRate[]>([]);
 
-  getExchangeRate(from: string, to: string, amount = 1): Observable<number> {
-    const rate = this.rates().find((r: ConversionRate) => r.from === from && r.to === to)?.rate;
+  getExchangeRate(from: string, to: string, amount = 1): Observable<string> {
+    const rate = this.rates().find((r: ConversionRate) => 
+      [r.from, r.to].includes(from) && [r.from, r.to].includes(to));
 
     if (!rate) {
       return this.conversionHttpService.loadExchangeRate(from, to, amount).pipe(
         tap(({ rate }) => this.setExchangeRate(from, to, rate)),
-        map(({ result }) => result)
+        map(({ result }) => `${result}`)
       );
+    } else if (rate.from === from) {
+      return of((rate.rate * amount).toFixed(4));
     }
-
-    return of(rate * amount);
+    return of((amount / rate.rate).toFixed(4));
   }
 
   setExchangeRate(from: string, to: string, rate: number): void {

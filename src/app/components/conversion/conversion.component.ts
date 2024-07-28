@@ -47,8 +47,8 @@ export class ConversionComponent {
         ...(this.getFormFieldValue('firstCurrencyName', 'secondCurrencyName', 'firstCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((result: number) => 
-      this.exchangeRateForm.controls.secondCurrencyRate.setValue(String(result)));
+    ).subscribe((result: string) => 
+      this.exchangeRateForm.controls.secondCurrencyRate.setValue(result));
 
     merge(
       this.secondCurrencyNameChange$,
@@ -61,8 +61,8 @@ export class ConversionComponent {
         ...(this.getFormFieldValue('secondCurrencyName', 'firstCurrencyName', 'secondCurrencyRate') as [string, string])
       )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((result: number) => 
-      this.exchangeRateForm.controls.firstCurrencyRate.setValue(String(result)));
+    ).subscribe((result: string) => 
+      this.exchangeRateForm.controls.firstCurrencyRate.setValue(result));
   }
 
   private getFormFieldValue(...fieldNames: string[]): string[] {
