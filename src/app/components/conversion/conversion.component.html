@@ -1,36 +1,30 @@
-<form [formGroup]="exchangeRateForm">
-  <div class="currency">
-    <input
-      controlError
-      type="text"
-      formControlName="firstCurrencyRate"
-      (input)="firstCurrencyRateChange$.next($event)"
-    >
-  
-    <select
-      formControlName="firstCurrencyName"
-      (change)="firstCurrencyNameChange$.next($event)"
-    >
-      @for (curr of currencies; track curr) {
-        <option [value]="curr">{{ curr }}</option>
-      }
-    </select>
-  </div>
-  
-  <div class="currency">
-    <input
-      controlError
-      type="text"
-      formControlName="secondCurrencyRate"
-      (input)="secondCurrencyRateChange$.next($event)"
-    >
-    <select
-      formControlName="secondCurrencyName"
-      (change)="secondCurrencyNameChange$.next($event)"
-    >
-      @for (curr of currencies; track curr) {
-        <option [value]="curr">{{ curr }}</option>
-      }
-    </select>
-  </div>
+<form [formGroup]="firstCurrencyForm" class="currency">
+  <input
+    controlError
+    type="text"
+    formControlName="firstCurrencyRate"
+  >
+
+  <select
+    formControlName="firstCurrencyName"
+  >
+    @for (curr of currencies; track curr) {
+      <option [value]="curr">{{ curr }}</option>
+    }
+  </select>
+</form>
+
+<form [formGroup]="secondCurrencyForm" class="currency">
+  <input
+    controlError
+    type="text"
+    formControlName="secondCurrencyRate"
+  >
+  <select
+    formControlName="secondCurrencyName"
+  >
+    @for (curr of currencies; track curr) {
+      <option [value]="curr">{{ curr }}</option>
+    }
+  </select>
 </form>

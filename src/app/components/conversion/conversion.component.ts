@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; 
-import { merge, Subject } from 'rxjs';
-import { debounceTime, filter, startWith, switchMap } from 'rxjs/operators';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms'; 
+import { merge } from 'rxjs';
+import { debounceTime, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConversionService } from '../../services/conversion.service';
@@ -19,54 +19,49 @@ import { ControlErrorDirective } from '../../common/directives/control-error.dir
 export class ConversionComponent {
   private conversionService = inject(ConversionService);
   private destroyRef = inject(DestroyRef);
+  private formBuilder = inject(FormBuilder);
 
   currencies = ['USD', 'EUR', 'UAH', 'NZD', 'CAD', 'SAR'];
- 
-  exchangeRateForm = inject(FormBuilder).group({
+
+  firstCurrencyForm = this.formBuilder.group({
     firstCurrencyRate: ['1', [Validators.required, numericValidator()]],
-    firstCurrencyName: ['UAH', Validators.required],
+    firstCurrencyName: ['UAH', Validators.required]
+  });
+
+  secondCurrencyForm = this.formBuilder.group({
     secondCurrencyRate: ['0', [Validators.required, numericValidator()]],
     secondCurrencyName: ['USD', Validators.required]
   });
-  
-  firstCurrencyRateChange$ = new Subject<Event>(); 
-  firstCurrencyNameChange$ = new Subject<Event>(); 
-  secondCurrencyRateChange$ = new Subject<Event>(); 
-  secondCurrencyNameChange$ = new Subject<Event>();
 
   constructor() {
-    merge(
-      this.firstCurrencyNameChange$, 
-      this.firstCurrencyRateChange$.pipe(
-        filter((event: Event) => !isNaN(Number((event.target as any).value)))
+    const firstCurrencyChanges$ = this.firstCurrencyForm.valueChanges.pipe(
+      startWith(this.firstCurrencyForm.value),
+      map(formValues => [
+        [ formValues.firstCurrencyName, 
+          this.secondCurrencyForm.value.secondCurrencyName,
+          formValues.firstCurrencyRate ], 
+        this.secondCurrencyForm.controls.secondCurrencyRate
+      ])
+    );
+
+    const secondCurrencyChanges$ = this.secondCurrencyForm.valueChanges.pipe(
+      map((formValues) => [
+        [ formValues.secondCurrencyName, 
+          this.firstCurrencyForm.value.firstCurrencyName, 
+          formValues.secondCurrencyRate ],
+        this.firstCurrencyForm.controls.firstCurrencyRate
+      ])
+    );
+
+    merge(firstCurrencyChanges$, secondCurrencyChanges$).pipe(
+      debounceTime(300),
+      switchMap(([values, formControlToUpdate]) => 
+        this.conversionService.getExchangeRate(...values as [string, string]).pipe(
+          tap((result: string) => (formControlToUpdate as FormControl).setValue(result, {emitEvent: false}))
+        )
       ),
-    ).pipe(
-      debounceTime(300),
-      startWith(0),
-      switchMap(() => this.conversionService.getExchangeRate(
-        ...(this.getFormFieldValue('firstCurrencyName', 'secondCurrencyName', 'firstCurrencyRate') as [string, string])
-      )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe((result: string) => 
-      this.exchangeRateForm.controls.secondCurrencyRate.setValue(result));
-
-    merge(
-      this.secondCurrencyNameChange$,
-      this.secondCurrencyRateChange$.pipe(
-        filter((event: Event) => !isNaN(Number((event.target as any).value)))
-      )
-    ).pipe(
-      debounceTime(300),
-      switchMap(() => this.conversionService.getExchangeRate(
-        ...(this.getFormFieldValue('secondCurrencyName', 'firstCurrencyName', 'secondCurrencyRate') as [string, string])
-      )),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe((result: string) => 
-      this.exchangeRateForm.controls.firstCurrencyRate.setValue(result));
-  }
-
-  private getFormFieldValue(...fieldNames: string[]): string[] {
-    return fieldNames.map(fieldName => this.exchangeRateForm.get(fieldName)?.getRawValue());
+    ).subscribe();
   }
 
 }
