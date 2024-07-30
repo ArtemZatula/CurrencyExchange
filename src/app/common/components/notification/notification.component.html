@@ -1,0 +1,6 @@
+@if (notification | async; as notifier) {
+  <div class="notification" [ngClass]="notifier.type">
+    <span>{{ notifier.message || 'Some error' }}</span>
+    <button (click)="clearNotification()">X</button>
+  </div>
+}
