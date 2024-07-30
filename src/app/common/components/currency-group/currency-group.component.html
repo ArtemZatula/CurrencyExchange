@@ -1,0 +1,12 @@
+<div [formGroupName]="currencyControlKey()" class="currency">
+  <input
+    controlError
+    type="text"
+    formControlName="rate"
+  >
+  <select formControlName="name">
+    @for (curr of currencyOptions(); track curr) {
+      <option [value]="curr">{{ curr }}</option>
+    }
+  </select>
+</div>

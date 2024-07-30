@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { RatePayload } from '../models/rate-payload.type';
 
 
@@ -13,6 +13,10 @@ export class ConversionHttpService {
 
   loadExchangeRate(from: string, to: string, amount = 1): Observable<{rate: number, result: number}> {
     return this.http.get<RatePayload>(`${this.host}/${from}/${to}/${amount}`).pipe(
+      catchError(e => {
+        console.log(e.error);
+        return EMPTY;
+      }),
       map((res: RatePayload) => ({rate: res.conversion_rate, result: res.conversion_result}))
     )
   }

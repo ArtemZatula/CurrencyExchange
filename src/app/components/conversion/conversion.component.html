@@ -1,30 +1,11 @@
-<form [formGroup]="firstCurrencyForm" class="currency">
-  <input
-    controlError
-    type="text"
-    formControlName="firstCurrencyRate"
-  >
+<form [formGroup]="currencyFormGroup">
+  <app-currency-group
+    currencyControlKey="firstCurrency"
+    [currencyOptions]="currencies">
+  </app-currency-group>
 
-  <select
-    formControlName="firstCurrencyName"
-  >
-    @for (curr of currencies; track curr) {
-      <option [value]="curr">{{ curr }}</option>
-    }
-  </select>
-</form>
-
-<form [formGroup]="secondCurrencyForm" class="currency">
-  <input
-    controlError
-    type="text"
-    formControlName="secondCurrencyRate"
-  >
-  <select
-    formControlName="secondCurrencyName"
-  >
-    @for (curr of currencies; track curr) {
-      <option [value]="curr">{{ curr }}</option>
-    }
-  </select>
-</form>
+  <app-currency-group
+    currencyControlKey="secondCurrency"
+    [currencyOptions]="currencies">
+  </app-currency-group>
+<form>

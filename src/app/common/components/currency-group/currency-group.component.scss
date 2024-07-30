@@ -1,0 +1,29 @@
+@use '../../../app.component' ;
+
+.currency {
+  display: grid;
+  grid-template-columns: 1fr min-content;
+  margin-bottom: 2rem;
+
+  input[type="text"] {
+    @extend .form-control;
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &.ng-invalid.ng-dirty  {
+      border: 1px solid var(--orange-red);
+    }
+  }
+  
+  select {
+    @extend .form-control;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+  }
+
+  .error {
+    color: var(--orange-red);
+  }
+}

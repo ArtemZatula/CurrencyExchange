@@ -1,63 +1,42 @@
-import { Component, DestroyRef, inject } from '@angular/core';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms'; 
+import { AfterViewInit, Component, DestroyRef, inject } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms'; 
 import { merge } from 'rxjs';
-import { debounceTime, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ConversionService } from '../../services/conversion.service';
-import { numericValidator } from '../../common/validators/numeric-validator';
-import { ControlErrorDirective } from '../../common/directives/control-error.directive';
-
+import { CurrencyGroupComponent } from '../../common/components/currency-group/currency-group.component';
 
 @Component({
   selector: 'app-conversion',
   standalone: true,
-  imports: [ReactiveFormsModule, ControlErrorDirective],
+  imports: [ReactiveFormsModule, CurrencyGroupComponent],
   templateUrl: './conversion.component.html',
   styleUrl: './conversion.component.scss'
 })
-export class ConversionComponent {
+export class ConversionComponent implements AfterViewInit {
   private conversionService = inject(ConversionService);
   private destroyRef = inject(DestroyRef);
-  private formBuilder = inject(FormBuilder);
 
   currencies = ['USD', 'EUR', 'UAH', 'NZD', 'CAD', 'SAR'];
+  currencyFormGroup = inject(FormBuilder).group({});
 
-  firstCurrencyForm = this.formBuilder.group({
-    firstCurrencyRate: ['1', [Validators.required, numericValidator()]],
-    firstCurrencyName: ['UAH', Validators.required]
-  });
+  ngAfterViewInit() {
+    const getCurrencyForm = (controlKey: string) => this.currencyFormGroup.get(controlKey) as FormGroup;
 
-  secondCurrencyForm = this.formBuilder.group({
-    secondCurrencyRate: ['0', [Validators.required, numericValidator()]],
-    secondCurrencyName: ['USD', Validators.required]
-  });
+    const currencyChange$ = (sourceKey: string, targetKey: string) => 
+      getCurrencyForm(sourceKey)?.valueChanges.pipe(
+        map(formValues => [formValues, getCurrencyForm(targetKey)])
+      );
 
-  constructor() {
-    const firstCurrencyChanges$ = this.firstCurrencyForm.valueChanges.pipe(
-      startWith(this.firstCurrencyForm.value),
-      map(formValues => [
-        [ formValues.firstCurrencyName, 
-          this.secondCurrencyForm.value.secondCurrencyName,
-          formValues.firstCurrencyRate ], 
-        this.secondCurrencyForm.controls.secondCurrencyRate
-      ])
-    );
-
-    const secondCurrencyChanges$ = this.secondCurrencyForm.valueChanges.pipe(
-      map((formValues) => [
-        [ formValues.secondCurrencyName, 
-          this.firstCurrencyForm.value.firstCurrencyName, 
-          formValues.secondCurrencyRate ],
-        this.firstCurrencyForm.controls.firstCurrencyRate
-      ])
-    );
-
-    merge(firstCurrencyChanges$, secondCurrencyChanges$).pipe(
+    merge(
+      currencyChange$('firstCurrency', 'secondCurrency'),
+      currencyChange$('secondCurrency', 'firstCurrency')
+    ).pipe(
       debounceTime(300),
-      switchMap(([values, formControlToUpdate]) => 
-        this.conversionService.getExchangeRate(...values as [string, string]).pipe(
-          tap((result: string) => (formControlToUpdate as FormControl).setValue(result, {emitEvent: false}))
+      switchMap(([values, currencyGroupToUpdate]) => 
+        this.conversionService.getExchangeRate(values.name, currencyGroupToUpdate.value.name, values.rate).pipe(
+          tap((result: string) => currencyGroupToUpdate.get('rate').setValue(result, {emitEvent: false}))
         )
       ),
       takeUntilDestroyed(this.destroyRef)
